@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Calculadora Basica</string>
+    <string-array name="signos">
+        <item>+</item>
+        <item>-</item>
+        <item>*</item>
+        <item>/</item>
+    </string-array>
+</resources>
