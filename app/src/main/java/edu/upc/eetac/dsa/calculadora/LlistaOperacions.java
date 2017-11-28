@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -22,13 +23,13 @@ public class LlistaOperacions extends AppCompatActivity {
 
     List<String> historialList = new ArrayList<>();     // Llista final del historial d'operacions
 
-    String OperacionsSBuffer;           //String Buffer inicial de totes les operacions separades per , .
-    String[] OperacionsArray;           // Array[String] de les operacions sense la , .
     ListView listView;                  // llista del historial a mostrar.
     Intent intent, intent1;
     Intent tractamentOperacio;
     String operacio;
     String[] historialVector;
+
+    Button cerrar;
 
 
     @Override
@@ -46,9 +47,23 @@ public class LlistaOperacions extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int i, long l) {
                 tractamentOperacio = new Intent(LlistaOperacions.this, TractamentOperacio.class);
                 tractamentOperacio.putExtra("operacioATractar", historialList.get(i));
-                startActivityForResult(tractamentOperacio,2);
+                startActivityForResult(tractamentOperacio,200);
             }
         });
+
+
+        cerrar = (Button) findViewById(R.id.cerrar);
+        cerrar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = getIntent();
+                //if(historialVector == null) finish();
+                intent.putExtra("historial2Main", historialVector);
+                setResult(4, intent);
+                finish();
+            }
+        });
+
     }
 
     /**
@@ -60,123 +75,82 @@ public class LlistaOperacions extends AppCompatActivity {
         listView.setAdapter(adapter);
     }
 
-    protected void onActivityResult(int requestCode, int resultCode, Intent intent){
-
-        super.onActivityResult(requestCode, resultCode, intent);
-        boolean v = true;
-        System.out.println(v);
-        v = getIntent().getExtras().getBoolean("vaciar");
-                //getBoolean("vaciar");
-        System.out.println(v);
-
-        if(requestCode == 100){
-            System.out.println(v);
-            if(v==true){
-                for(String s : historialList)
-                    System.out.println(s);
-
-                historialList.clear();          // Neteja historial.
-
-                for(String s : historialList)
-                    System.out.println(s);
-
-                //DisplayListHistory();           // Tornem a mostrar l'historial buit.
-
-                DisplayListHistory();
-
-            }
-        }
-
-        /*if(requestCode == 2)
-            if(resultCode == RESULT_OK){
-
-                operacio =  getIntent().getExtras().getString("modificar");
-                historialList.remove(operacio);          // numOperacio és l'índex de la llista d'operacions que apunta a la operació modificada.
-
-                //intent.putExtra("modificar", operacio);
-               //setResult(3, intent);
-                //finish();
-            }
-
-            if(resultCode == RESULT_CANCELED){
-                operacio =  getIntent().getExtras().getString("borrar");
-                historialList.remove(operacio);
-                DisplayListHistory();
-            }
-        {
-            String result=intent.getExtras().getString("modify");
-            intent1.putExtra("modificar", result);
-            setResult(1, intent1);
-            finish();
-        }*/
-
-
-        /*if(resultCode == 1){
-
-            String result = intent.getExtras().getString("delete");
-            for (int i = 0; i < historialList.size(); i++){
-
-                if(historialList.get(i).equals(result)) historialList.remove(i);
-            }
-
-            ArrayAdapter adapter= new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, historialList);
-            ListView listView=(ListView)findViewById(R.id.llistaHistorial);
-            listView.setAdapter(adapter);
-        }
-        else if(resultCode==2)
-        {
-            String result=intent.getExtras().getString("modify");
-            intent1.putExtra("modify",result);
-            setResult(1,intent1);
-            finish();
-        }*/
-    }
 
     /**
      * Transcriu el String Buffer OperacionsSBuffer a una List<Strings> historialList que conté les
      * operacions
      */
     private void FromBuffer2History(){
-
-        // Posem el String Buffer (OperaiconsSBuffer) a List
-        //OperacionsSBuffer = getIntent().getExtras().getString("historial");
-        //OperacionsArray = getIntent().getExtras().getStringArray("historial");
-        //List<String> listahistorial = (List<String>) getIntent().getExtras().get("historial");
-        historialVector = (String[]) getIntent().getExtras().get("historial");
-        //System.out.println(listahistorial.get(0).toCharArray());
-                //OperacionsSBuffer.split(",");               // OperacionsArray = vector de totes les operacions (sense ,)
-
-
-        historialList.addAll(Arrays.asList(historialVector));
-
-
-    }
-
-    public void borrarHistorial(View view) {
-        //throw new Exception ("Llista d'historial buida.")
-        try {
-            if (historialList.size() == 0) ;
-            intent = new Intent(LlistaOperacions.this, ConfirmarEsborrar.class);
-            startActivity(intent);
-
+        try{
+            historialVector = (String[]) getIntent().getExtras().get("historial");
+            historialList.addAll(Arrays.asList(historialVector));
 
         } catch (Exception e){
-            //e.getStackTrace();
             Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
         }
 
     }
 
-    public void atras(View view){
-        Intent intent1 = getIntent();
-        StringBuffer list = new StringBuffer();
-        for (int i = 0; i< historialList.size(); i++){
-            list.append(historialList.get(i));
-            if(i< historialList.size()-1)
-            list.append(",");
+    public void borrarHistorial(View view) {
+        try {
+
+            if(historialList.size() == 0) throw new Error ("L'historial ja és buit!");
+            intent = new Intent(LlistaOperacions.this, ConfirmarEsborrar.class);
+            startActivityForResult(intent,100);
+
+        } catch (Exception e){
+            Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
         }
-        intent1.putExtra("lista",list.toString());
-        setResult(RESULT_OK,intent1);
-        finish();
+
     }
+
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent){
+        super.onActivityResult(requestCode, resultCode, intent);
+
+        boolean resultado = intent.getExtras().getBoolean("vaciarHistorial");
+
+        if(requestCode == 100 && resultado){
+
+            historialList.clear();          // Neteja historial.
+
+            intent = getIntent();
+            intent.putExtra("historialBorrado", true);
+            setResult(2, intent);
+            finish();
+
+        }
+
+        if(requestCode == 200){
+            if(resultCode==RESULT_OK){
+                String operacion = intent.getExtras().getString("modificar");
+
+                historialList.remove(operacion);          // numOperacio és l'índex de la llista d'operacions que apunta a la operació modificada.
+                System.out.println("size historial lista oeraciones es: " + historialList.size());
+                intent = getIntent();
+                intent.putExtra("modificar2", operacion);
+                setResult(3, intent);
+                finish();
+            }
+            if(resultCode==RESULT_CANCELED){
+                String operacion = intent.getExtras().getString("borrarOp");
+                historialList.remove(operacion);
+                System.out.println("size historial lista oeraciones remove modificar es: " + historialList.size());
+
+                intent = getIntent();
+                intent.putExtra("modificar3", operacion);
+                setResult(5, intent);
+                finish();
+            }
+
+
+        }
+
+
+
+
+    }
+
+
+
 }

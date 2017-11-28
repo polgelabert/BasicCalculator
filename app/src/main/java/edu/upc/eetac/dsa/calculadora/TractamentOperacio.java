@@ -18,6 +18,7 @@ public class TractamentOperacio extends AppCompatActivity {
     Button modificar, borrar;
     Intent intent;
 
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.atctivity_tractament_operacio);
@@ -44,7 +45,7 @@ public class TractamentOperacio extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 intent = getIntent();
-                intent.putExtra("borrar", operacioATractar);
+                intent.putExtra("borrarOp", operacioATractar);
                 setResult(RESULT_CANCELED, intent);         // Result_canceled = 0
                 finish();
             }
@@ -53,19 +54,6 @@ public class TractamentOperacio extends AppCompatActivity {
 
     }
 
-    /*public void borrar (View view){
-        Intent intent = getIntent();
-        intent.putExtra("delete", operacioATractar);
-        setResult(1,intent);
-        finish();
-    }
-
-    public void modificar(View view){
-        Intent intent=getIntent();
-        intent.putExtra("modify", operacioATractar);
-        setResult(2,intent);
-        finish();
-    }*/
 
 
 }

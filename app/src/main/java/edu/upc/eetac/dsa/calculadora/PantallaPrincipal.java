@@ -1,7 +1,9 @@
 package edu.upc.eetac.dsa.calculadora;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -10,6 +12,8 @@ import android.widget.*;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 import static android.widget.Toast.LENGTH_SHORT;
@@ -18,6 +22,8 @@ public class PantallaPrincipal extends AppCompatActivity {
     List<String> historialOperacions =new ArrayList<String>();
     String[] historialVector;
     String[] historialArray;
+    List<String> historialList;
+    int i =999;
     String tag="Events";
 
     @Override
@@ -28,6 +34,7 @@ public class PantallaPrincipal extends AppCompatActivity {
     }
 
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     public void mostrarResultat(View view){
         try {
             EditText text1 =(EditText) findViewById(R.id.num1);
@@ -68,21 +75,35 @@ public class PantallaPrincipal extends AppCompatActivity {
                         throw new Error("Impossible dividir entre 0.");
                     break;
             }
+            if(i==999){
+                String operacio = (historialOperacions.size()+1 + " : " + num1 + " " + spin + " " + num2 + " = " + resultat);
+                historialOperacions.add(operacio);
 
-            String operacio = ((historialOperacions.size()+1) + ": " + num1 + " " + spin + " " + num2 + " = " + resultat);
-            historialOperacions.add(operacio);
+            }
+
+
+
+
             text3.setText(String.valueOf(resultat));
-            //System.out.println(historialOperacions.get(0).toCharArray());
-            historialVector = new String[historialOperacions.size()];
-            historialVector = historialOperacions.toArray(historialVector);
-            for(String s : historialVector)
-                System.out.println(s);
 
         }
         catch (Exception e){
             Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
+
+    private void orderLista() {
+        int k = 0;
+        String op;
+        for(String s: historialOperacions){
+            op = k + " : " + s;
+            historialOperacions.remove(k);
+            historialOperacions.add(op);
+            k = k + 1;
+        }
+
+    }
+
 
     /**
      * Comprova si el nombre introduit és null.
@@ -108,30 +129,21 @@ public class PantallaPrincipal extends AppCompatActivity {
 
     public void mostrarHistorial(View view){
         try {
-           // historialArray = new String[historialOperacions.size()];
-            //historialOperacions.toArray().toString();
+            if (historialOperacions.size() == 0) throw new Error("No hi ha elements a l'historial");
 
-            //StringBuffer OperacionsSBuffer = new StringBuffer();
 
-            //if(historialOperacions.size() == 0) throw new Error ("L'historialList d'operaciones està buit.");
 
-            // Emplenar el buffer (OperacionsSBuffer) amb el historialList de operacions.
-            //for (int i = 0; i < historialOperacions.size(); i++){
-            //    OperacionsSBuffer.append(historialOperacions.get(i));
-            //    if(i< historialOperacions.size()-1) OperacionsSBuffer.append(",");
-            //}
+            historialVector = new String[historialOperacions.size()];
+            historialVector = historialOperacions.toArray(historialVector);
 
-            // Intent que relaciona a que Pantalla anira.
+            // Intent que relaciona amb quina Pantalla anira.
             Intent intent = new Intent(PantallaPrincipal.this, LlistaOperacions.class);
-            //intent.putExtra("OperacionsSBuffer", OperacionsSBuffer.toString());     // traspas de paràmetre serialitzable
-            //intent.putExtra("historial", historialOperacions.toArray());     // traspas de paràmetre serialitzable
             intent.putExtra("historial", historialVector);
             startActivityForResult(intent,100);
+
         }
         catch (Exception e){
-            e.printStackTrace();
-            //Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
-
+            Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
 
@@ -141,27 +153,61 @@ public class PantallaPrincipal extends AppCompatActivity {
         EditText text2 =(EditText) findViewById(R.id.num2);
         EditText text3 =(EditText) findViewById(R.id.resultat);
 
-        if(resultCode == 3){
-            String operacio = intent.getExtras().getString("modificar");
-            String[] as = operacio.split(" ");
-            text1.setText(as[1]);
-            text2.setText(as[3]);
-            //text3.setText(as[5]);
+        //Quan s'ha borrat l'historial
+        if(resultCode == 2){
+            boolean resultado = intent.getExtras().getBoolean("historialBorrado");
+
+            if(resultado){
+                historialOperacions.clear();
+                text1.setText("");
+                text2.setText("");
+                text3.setText("");
+            }
+
         }
 
-        else if(resultCode == RESULT_OK){
-            historialOperacions = new ArrayList<String>();
-            String histo = intent.getExtras().getString("lista");
-            String[] list=histo.split(",");
-            String s,j;
-            for (int i=1;i<=list.length;i++){
-                    s=list[i-1];
-                    j=(i)+s.substring(1,s.length());
-                    historialOperacions.add(j);
-            }
-            text1.setText("0");
-            text2.setText("0");
-            text3.setText("0");
+        //Quan s'acciona la creu.
+        if(resultCode ==4 ){
+            text1.setText("");
+            text2.setText("");
+            text3.setText("");
+
         }
+
+
+        if(resultCode == 3){
+            String operacio = intent.getExtras().getString("modificar2");
+            System.out.println("size historial ppal es: " + historialOperacions.size());
+            String[] as = operacio.split(" ");
+            i = Integer.parseInt(as[0]);
+            text1.setText(as[2]);
+            text2.setText(as[4]);
+            text3.setText("");
+
+            historialOperacions.remove(operacio);
+            System.out.println("size historial ppal2 es: " + historialOperacions.size());
+        }
+
+        if (resultCode == 5){
+            String operacio = intent.getExtras().getString("modificar3");
+            historialOperacions.remove(operacio);
+            for(int j = 0; j < historialOperacions.size(); j++){
+                String[] as = historialOperacions.get(j).split(" ");
+                as[0] = Integer.toString(j+1);
+                String op = as[0] + " : " + as[2] + " " + as[3] + " " + as[4] + " = " + as[6];
+                System.out.println(j + "se ha hecho a " + op);
+                historialOperacions.remove(j);
+                historialOperacions.add(op);
+            }
+
+            for(String s:historialOperacions)
+                System.out.println(s);
+
+            text1.setText("");
+            text2.setText("");
+            text3.setText("");
+        }
+
+
     }
 }

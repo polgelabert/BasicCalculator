@@ -18,45 +18,34 @@ public class ConfirmarEsborrar extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_confirmar_esborrar);
-
-
+        si = (Button) findViewById(R.id.si);
         no = (Button) findViewById(R.id.no);
+
+
+
         no.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 intent = getIntent();
-                setResult(RESULT_CANCELED, intent);         // Result_cancelled = 0
+                intent.putExtra("vaciarHistorial",false);
+                setResult(RESULT_OK, intent);               // Result_ok = -1
                 finish();
             }
         });
 
-        si = (Button) findViewById(R.id.si);
+
         si.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                intent = new Intent(ConfirmarEsborrar.this, LlistaOperacions.class);
-                intent.putExtra("vaciar",true);
-                //intent = getIntent().putExtra("vaciar",true);
-                //setResult(RESULT_OK, intent);               // Result_ok = -1
+                intent = getIntent();
+                intent.putExtra("vaciarHistorial",true);
+                setResult(RESULT_OK, intent);               // Result_ok = -1
                 finish();
             }
         });
 
 
     }
-
-
-    /*public void noBorrar(View view){
-        onBackPressed();
-    }
-
-    public void siBorrar(View view){
-
-        intent = new Intent(ConfirmarEsborrar.this, PantallaPrincipal.class);
-        startActivity(intent);
-        finish();
-    }*/
-
 
 
 }
